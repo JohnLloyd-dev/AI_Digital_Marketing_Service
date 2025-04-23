@@ -4,6 +4,9 @@ import {
   newsletters, type Newsletter, type InsertNewsletter,
   chatMessages, type ChatMessage, type InsertChatMessage 
 } from "@shared/schema";
+import { drizzle } from "drizzle-orm/postgres-js";
+import { eq, desc } from "drizzle-orm";
+import postgres from "postgres";
 
 export interface IStorage {
   // User methods
@@ -24,6 +27,86 @@ export interface IStorage {
   getChatMessagesBySession(sessionId: string): Promise<ChatMessage[]>;
 }
 
+export class PostgresStorage implements IStorage {
+  private db;
+
+  constructor() {
+    if (!process.env.DATABASE_URL) {
+      throw new Error("DATABASE_URL environment variable is not set");
+    }
+
+    const client = postgres(process.env.DATABASE_URL, { 
+      max: 10,
+      ssl: true,
+      idle_timeout: 20
+    });
+    
+    this.db = drizzle(client);
+  }
+
+  // User methods
+  async getUser(id: number): Promise<User | undefined> {
+    const result = await this.db.select().from(users).where(eq(users.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const result = await this.db.select().from(users).where(eq(users.username, username)).limit(1);
+    return result[0];
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const result = await this.db.insert(users).values(insertUser).returning();
+    return result[0];
+  }
+  
+  // Contact methods
+  async createContact(insertContact: InsertContact): Promise<Contact> {
+    const result = await this.db.insert(contacts).values(insertContact).returning();
+    return result[0];
+  }
+  
+  async getContacts(): Promise<Contact[]> {
+    return await this.db.select().from(contacts).orderBy(desc(contacts.createdAt));
+  }
+  
+  // Newsletter methods
+  async subscribeToNewsletter(insertNewsletter: InsertNewsletter): Promise<Newsletter> {
+    // Check if email already exists
+    const existingResult = await this.db
+      .select()
+      .from(newsletters)
+      .where(eq(newsletters.email, insertNewsletter.email))
+      .limit(1);
+    
+    if (existingResult.length > 0) {
+      return existingResult[0];
+    }
+    
+    const result = await this.db.insert(newsletters).values(insertNewsletter).returning();
+    return result[0];
+  }
+  
+  async getNewsletterSubscribers(): Promise<Newsletter[]> {
+    return await this.db.select().from(newsletters).orderBy(desc(newsletters.createdAt));
+  }
+  
+  // Chat methods
+  async createChatMessage(insertChatMessage: InsertChatMessage): Promise<ChatMessage> {
+    const result = await this.db.insert(chatMessages).values(insertChatMessage).returning();
+    return result[0];
+  }
+  
+  async getChatMessagesBySession(sessionId: string): Promise<ChatMessage[]> {
+    return await this.db
+      .select()
+      .from(chatMessages)
+      .where(eq(chatMessages.sessionId, sessionId))
+      .orderBy(chatMessages.timestamp);
+  }
+}
+
+// Memory storage for backward compatibility and testing
 export class MemStorage implements IStorage {
   private users: Map<number, User>;
   private contacts: Map<number, Contact>;
@@ -69,9 +152,19 @@ export class MemStorage implements IStorage {
   async createContact(insertContact: InsertContact): Promise<Contact> {
     const id = this.contactCurrentId++;
     const createdAt = new Date();
-    const contact: Contact = { ...insertContact, id, createdAt };
-    this.contacts.set(id, contact);
-    return contact;
+    
+    // Ensure all required fields are properly set
+    const contactData = {
+      ...insertContact,
+      id,
+      createdAt,
+      phone: insertContact.phone || null,
+      company: insertContact.company || null,
+      newsletter: insertContact.newsletter ?? false
+    };
+    
+    this.contacts.set(id, contactData as Contact);
+    return contactData as Contact;
   }
   
   async getContacts(): Promise<Contact[]> {
@@ -112,8 +205,12 @@ export class MemStorage implements IStorage {
   async getChatMessagesBySession(sessionId: string): Promise<ChatMessage[]> {
     return Array.from(this.chatMessages.values())
       .filter(message => message.sessionId === sessionId)
-      .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+      .sort((a, b) => {
+        const aTime = a.timestamp ? a.timestamp.getTime() : 0;
+        const bTime = b.timestamp ? b.timestamp.getTime() : 0;
+        return aTime - bTime;
+      });
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new PostgresStorage();
