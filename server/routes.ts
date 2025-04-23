@@ -10,8 +10,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create HTTP server
   const httpServer = createServer(app);
   
-  // Setup WebSocket server
-  const wss = new WebSocketServer({ server: httpServer });
+  // Setup WebSocket server with a specific path to avoid conflicts with Vite's HMR
+  const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
   
   wss.on('connection', (ws) => {
     ws.on('message', async (message) => {
