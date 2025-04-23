@@ -1,7 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertContactSchema, insertNewsletterSchema, insertChatMessageSchema } from "@shared/schema";
+import { insertContactSchema, insertNewsletterSchema, insertChatMessageSchema, insertCaseStudySchema } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from 'zod-validation-error';
 import { WebSocketServer } from 'ws';
@@ -104,6 +104,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Chat history retrieval error:', error);
       res.status(500).json({ success: false, error: 'Server error' });
+    }
+  });
+  
+  // Get all case studies
+  app.get('/api/case-studies', async (req: Request, res: Response) => {
+    try {
+      const caseStudies = await storage.getCaseStudies();
+      res.json({ success: true, data: caseStudies });
+    } catch (error) {
+      console.error('Case studies retrieval error:', error);
+      res.status(500).json({ success: false, error: 'Server error' });
+    }
+  });
+  
+  // Get a specific case study by ID
+  app.get('/api/case-studies/:id', async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ success: false, error: 'Invalid ID format' });
+      }
+      
+      const caseStudy = await storage.getCaseStudyById(id);
+      if (!caseStudy) {
+        return res.status(404).json({ success: false, error: 'Case study not found' });
+      }
+      
+      res.json({ success: true, data: caseStudy });
+    } catch (error) {
+      console.error('Case study retrieval error:', error);
+      res.status(500).json({ success: false, error: 'Server error' });
+    }
+  });
+  
+  // Create a case study
+  app.post('/api/case-studies', async (req: Request, res: Response) => {
+    try {
+      const validatedData = insertCaseStudySchema.parse(req.body);
+      const caseStudy = await storage.createCaseStudy(validatedData);
+      res.status(201).json({ success: true, data: caseStudy });
+    } catch (error) {
+      console.error('Case study creation error:', error);
+      if (error instanceof ZodError) {
+        res.status(400).json({ success: false, error: fromZodError(error).message });
+      } else {
+        res.status(500).json({ success: false, error: 'Server error' });
+      }
     }
   });
 

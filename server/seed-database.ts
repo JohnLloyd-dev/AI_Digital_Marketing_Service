@@ -1,5 +1,6 @@
-import { contacts, newsletters, chatMessages, insertContactSchema, insertNewsletterSchema, insertChatMessageSchema } from "@shared/schema";
+import { contacts, newsletters, chatMessages, caseStudies, insertContactSchema, insertNewsletterSchema, insertChatMessageSchema, insertCaseStudySchema } from "@shared/schema";
 import { db } from "./db";
+import { caseStudies as caseStudiesData } from "../client/src/data/caseStudies";
 
 async function seedDatabase() {
   console.log("Seeding database...");
@@ -84,6 +85,18 @@ async function seedDatabase() {
   for (const chatMessage of sampleChatMessages) {
     const parsed = insertChatMessageSchema.parse(chatMessage);
     await db.insert(chatMessages).values(parsed).onConflictDoNothing();
+  }
+  
+  // Add case studies from client data
+  console.log("Adding case studies...");
+  for (const caseStudy of caseStudiesData) {
+    try {
+      const parsed = insertCaseStudySchema.parse(caseStudy);
+      await db.insert(caseStudies).values(parsed).onConflictDoNothing();
+      console.log(`Added case study: ${caseStudy.title}`);
+    } catch (error) {
+      console.error(`Error adding case study ${caseStudy.title}:`, error);
+    }
   }
 
   console.log("Database seeding completed!");
