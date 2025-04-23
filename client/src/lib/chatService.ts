@@ -23,7 +23,7 @@ export class ChatService {
 
     try {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const wsUrl = `${protocol}//${window.location.host}`;
+      const wsUrl = `${protocol}//${window.location.host}/ws`;
       
       console.log('Connecting to WebSocket at:', wsUrl);
       this.ws = new WebSocket(wsUrl);
@@ -50,8 +50,14 @@ export class ChatService {
 
       this.ws.onerror = (error) => {
         console.error('WebSocket error:', error);
+        // Log more detailed information about the connection
+        console.log('WebSocket readyState:', this.ws?.readyState);
+        console.log('Connection URL:', wsUrl);
+        
         this.notifyStatusChange('error');
-        this.ws?.close();
+        
+        // Don't close the connection on error, let the browser handle reconnection
+        // this.ws?.close();
       };
     } catch (error) {
       console.error('Failed to establish WebSocket connection:', error);

@@ -1,20 +1,20 @@
 import { motion } from "framer-motion";
 import { 
-  SiMicrosoft, 
-  SiAmazon, 
-  SiGoogle, 
-  SiAdobe, 
-  SiSlack, 
-  SiShopify 
-} from "react-icons/si";
+  Building2, 
+  ShoppingBag, 
+  Search, 
+  Paintbrush, 
+  MessageSquare, 
+  ShoppingCart 
+} from "lucide-react";
 
 const clients = [
-  { id: 1, name: "Microsoft", icon: SiMicrosoft },
-  { id: 2, name: "Amazon", icon: SiAmazon },
-  { id: 3, name: "Google", icon: SiGoogle },
-  { id: 4, name: "Adobe", icon: SiAdobe },
-  { id: 5, name: "Slack", icon: SiSlack },
-  { id: 6, name: "Shopify", icon: SiShopify },
+  { id: 1, name: "Microsoft", icon: Building2 },
+  { id: 2, name: "Amazon", icon: ShoppingBag },
+  { id: 3, name: "Google", icon: Search },
+  { id: 4, name: "Adobe", icon: Paintbrush },
+  { id: 5, name: "Slack", icon: MessageSquare },
+  { id: 6, name: "Shopify", icon: ShoppingCart },
 ];
 
 const FeaturedClients = () => {

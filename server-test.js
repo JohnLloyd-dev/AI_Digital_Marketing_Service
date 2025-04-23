@@ -18,7 +18,7 @@ fetch('/api/health')
 // Test WebSocket connectivity
 const testWebSocket = () => {
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const wsUrl = `${protocol}//${window.location.host}`;
+  const wsUrl = `${protocol}//${window.location.host}/ws`;
   
   console.log(`Attempting to connect to WebSocket at ${wsUrl}`);
   

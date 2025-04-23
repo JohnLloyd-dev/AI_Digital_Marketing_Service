@@ -12,5 +12,26 @@
     <script type="module" src="/src/main.tsx"></script>
     <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
     <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
+    <!-- Server connection test script -->
+    <script type="text/javascript">
+      // Add a small delay to let the server start up
+      setTimeout(() => {
+        console.log('Testing server connectivity...');
+        // Test API endpoint
+        fetch('/api/health')
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+          })
+          .then(data => {
+            console.log('Health check successful!', data);
+          })
+          .catch(error => {
+            console.error('Health check failed:', error);
+          });
+      }, 2000);
+    </script>
   </body>
 </html>
