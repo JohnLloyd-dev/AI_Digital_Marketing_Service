@@ -2,7 +2,8 @@ import {
   users, type User, type InsertUser,
   contacts, type Contact, type InsertContact,
   newsletters, type Newsletter, type InsertNewsletter,
-  chatMessages, type ChatMessage, type InsertChatMessage 
+  chatMessages, type ChatMessage, type InsertChatMessage,
+  caseStudies, type CaseStudy, type InsertCaseStudy
 } from "@shared/schema";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { eq, desc } from "drizzle-orm";
@@ -25,6 +26,11 @@ export interface IStorage {
   // Chat methods
   createChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
   getChatMessagesBySession(sessionId: string): Promise<ChatMessage[]>;
+  
+  // Case Study methods
+  createCaseStudy(caseStudy: InsertCaseStudy): Promise<CaseStudy>;
+  getCaseStudies(): Promise<CaseStudy[]>;
+  getCaseStudyById(id: number): Promise<CaseStudy | undefined>;
 }
 
 export class PostgresStorage implements IStorage {
@@ -103,6 +109,21 @@ export class PostgresStorage implements IStorage {
       .from(chatMessages)
       .where(eq(chatMessages.sessionId, sessionId))
       .orderBy(chatMessages.timestamp);
+  }
+  
+  // Case Study methods
+  async createCaseStudy(insertCaseStudy: InsertCaseStudy): Promise<CaseStudy> {
+    const result = await this.db.insert(caseStudies).values(insertCaseStudy).returning();
+    return result[0];
+  }
+  
+  async getCaseStudies(): Promise<CaseStudy[]> {
+    return await this.db.select().from(caseStudies).orderBy(desc(caseStudies.createdAt));
+  }
+  
+  async getCaseStudyById(id: number): Promise<CaseStudy | undefined> {
+    const result = await this.db.select().from(caseStudies).where(eq(caseStudies.id, id)).limit(1);
+    return result[0];
   }
 }
 
@@ -210,6 +231,19 @@ export class MemStorage implements IStorage {
         const bTime = b.timestamp ? b.timestamp.getTime() : 0;
         return aTime - bTime;
       });
+  }
+  
+  // Case study methods (not implemented for memory storage, using default empty responses)
+  async createCaseStudy(caseStudy: InsertCaseStudy): Promise<CaseStudy> {
+    throw new Error("Case study operations not supported in memory storage");
+  }
+  
+  async getCaseStudies(): Promise<CaseStudy[]> {
+    return [];
+  }
+  
+  async getCaseStudyById(id: number): Promise<CaseStudy | undefined> {
+    return undefined;
   }
 }
 

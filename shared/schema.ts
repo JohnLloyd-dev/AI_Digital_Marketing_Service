@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -54,6 +54,28 @@ export const insertChatMessageSchema = createInsertSchema(chatMessages).omit({
   timestamp: true,
 });
 
+export const caseStudies = pgTable("case_studies", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(),
+  image: text("image").notNull(),
+  clientName: text("client_name").notNull(),
+  clientType: text("client_type").notNull(),
+  clientImage: text("client_image").notNull(),
+  badgeColor: text("badge_color").notNull(),
+  linkColor: text("link_color").notNull(),
+  linkHoverColor: text("link_hover_color").notNull(),
+  fullContent: jsonb("full_content").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertCaseStudySchema = createInsertSchema(caseStudies).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Type definitions
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 
@@ -65,3 +87,6 @@ export type Newsletter = typeof newsletters.$inferSelect;
 
 export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
 export type ChatMessage = typeof chatMessages.$inferSelect;
+
+export type InsertCaseStudy = z.infer<typeof insertCaseStudySchema>;
+export type CaseStudy = typeof caseStudies.$inferSelect;
