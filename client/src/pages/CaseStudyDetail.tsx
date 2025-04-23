@@ -25,12 +25,12 @@ const CaseStudyDetail = () => {
   const { id } = useParams<{ id: string }>();
   const caseStudyId = parseInt(id);
 
-  const { data, isLoading, error } = useQuery<{ success: boolean; data: CaseStudy }>({
+  const { data, isLoading, error } = useQuery<{ success: boolean; data: ExtendedCaseStudy }>({
     queryKey: ['/api/case-studies', caseStudyId],
     enabled: !isNaN(caseStudyId),
   });
 
-  const caseStudy = data?.data;
+  const caseStudy = data?.data as ExtendedCaseStudy;
 
   if (isLoading) {
     return (
@@ -43,7 +43,7 @@ const CaseStudyDetail = () => {
     );
   }
 
-  if (error || !caseStudy) {
+  if (error || !caseStudy || !caseStudy.fullContent) {
     return (
       <div className="py-20 text-center">
         <h2 className="text-2xl font-bold text-gray-900">Case Study Not Found</h2>
@@ -109,7 +109,7 @@ const CaseStudyDetail = () => {
 
                 <h2>The Results</h2>
                 <ul className="space-y-2">
-                  {caseStudy.fullContent.results.map((result, index) => (
+                  {caseStudy.fullContent.results.map((result: string, index: number) => (
                     <motion.li
                       key={index}
                       className="flex items-start"
@@ -173,7 +173,7 @@ const CaseStudyDetail = () => {
 
                 <h3 className="text-lg font-bold text-gray-900 mt-8 mb-4">Key Metrics</h3>
                 <div className="space-y-4">
-                  {caseStudy.fullContent.results.slice(0, 3).map((result, index) => {
+                  {caseStudy.fullContent.results.slice(0, 3).map((result: string, index: number) => {
                     const matches = result.match(/^(\d+%|[\d.]+ ?[xX])(.+)$/);
                     if (matches) {
                       return (
