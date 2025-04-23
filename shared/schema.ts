@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { pgTable, text, serial, integer, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
+=======
+import { pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/pg-core";
+>>>>>>> cedbdcf0d4ed2d86ab91e4363435dc208190567a
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -54,6 +58,7 @@ export const insertChatMessageSchema = createInsertSchema(chatMessages).omit({
   timestamp: true,
 });
 
+<<<<<<< HEAD
 export const caseStudies = pgTable("case_studies", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
@@ -76,6 +81,8 @@ export const insertCaseStudySchema = createInsertSchema(caseStudies).omit({
 });
 
 // Type definitions
+=======
+>>>>>>> cedbdcf0d4ed2d86ab91e4363435dc208190567a
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 
@@ -87,6 +94,9 @@ export type Newsletter = typeof newsletters.$inferSelect;
 
 export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
 export type ChatMessage = typeof chatMessages.$inferSelect;
+<<<<<<< HEAD
 
 export type InsertCaseStudy = z.infer<typeof insertCaseStudySchema>;
 export type CaseStudy = typeof caseStudies.$inferSelect;
+=======
+>>>>>>> cedbdcf0d4ed2d86ab91e4363435dc208190567a

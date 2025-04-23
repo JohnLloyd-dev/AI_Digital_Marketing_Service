@@ -1,7 +1,11 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+<<<<<<< HEAD
 import { insertContactSchema, insertNewsletterSchema, insertChatMessageSchema, insertCaseStudySchema } from "@shared/schema";
+=======
+import { insertContactSchema, insertNewsletterSchema, insertChatMessageSchema } from "@shared/schema";
+>>>>>>> cedbdcf0d4ed2d86ab91e4363435dc208190567a
 import { ZodError } from "zod";
 import { fromZodError } from 'zod-validation-error';
 import { WebSocketServer } from 'ws';
@@ -106,6 +110,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ success: false, error: 'Server error' });
     }
   });
+<<<<<<< HEAD
   
   // Get all case studies
   app.get('/api/case-studies', async (req: Request, res: Response) => {
@@ -153,6 +158,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     }
   });
+=======
+>>>>>>> cedbdcf0d4ed2d86ab91e4363435dc208190567a
 
   return httpServer;
 }

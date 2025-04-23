@@ -2,12 +2,17 @@ import {
   users, type User, type InsertUser,
   contacts, type Contact, type InsertContact,
   newsletters, type Newsletter, type InsertNewsletter,
+<<<<<<< HEAD
   chatMessages, type ChatMessage, type InsertChatMessage,
   caseStudies, type CaseStudy, type InsertCaseStudy
 } from "@shared/schema";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { eq, desc } from "drizzle-orm";
 import postgres from "postgres";
+=======
+  chatMessages, type ChatMessage, type InsertChatMessage 
+} from "@shared/schema";
+>>>>>>> cedbdcf0d4ed2d86ab91e4363435dc208190567a
 
 export interface IStorage {
   // User methods
@@ -26,6 +31,7 @@ export interface IStorage {
   // Chat methods
   createChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
   getChatMessagesBySession(sessionId: string): Promise<ChatMessage[]>;
+<<<<<<< HEAD
   
   // Case Study methods
   createCaseStudy(caseStudy: InsertCaseStudy): Promise<CaseStudy>;
@@ -128,6 +134,10 @@ export class PostgresStorage implements IStorage {
 }
 
 // Memory storage for backward compatibility and testing
+=======
+}
+
+>>>>>>> cedbdcf0d4ed2d86ab91e4363435dc208190567a
 export class MemStorage implements IStorage {
   private users: Map<number, User>;
   private contacts: Map<number, Contact>;
@@ -173,6 +183,7 @@ export class MemStorage implements IStorage {
   async createContact(insertContact: InsertContact): Promise<Contact> {
     const id = this.contactCurrentId++;
     const createdAt = new Date();
+<<<<<<< HEAD
     
     // Ensure all required fields are properly set
     const contactData = {
@@ -186,6 +197,11 @@ export class MemStorage implements IStorage {
     
     this.contacts.set(id, contactData as Contact);
     return contactData as Contact;
+=======
+    const contact: Contact = { ...insertContact, id, createdAt };
+    this.contacts.set(id, contact);
+    return contact;
+>>>>>>> cedbdcf0d4ed2d86ab91e4363435dc208190567a
   }
   
   async getContacts(): Promise<Contact[]> {
@@ -226,6 +242,7 @@ export class MemStorage implements IStorage {
   async getChatMessagesBySession(sessionId: string): Promise<ChatMessage[]> {
     return Array.from(this.chatMessages.values())
       .filter(message => message.sessionId === sessionId)
+<<<<<<< HEAD
       .sort((a, b) => {
         const aTime = a.timestamp ? a.timestamp.getTime() : 0;
         const bTime = b.timestamp ? b.timestamp.getTime() : 0;
@@ -248,3 +265,10 @@ export class MemStorage implements IStorage {
 }
 
 export const storage = new PostgresStorage();
+=======
+      .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+  }
+}
+
+export const storage = new MemStorage();
+>>>>>>> cedbdcf0d4ed2d86ab91e4363435dc208190567a
